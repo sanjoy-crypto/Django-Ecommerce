@@ -41,6 +41,11 @@ INSTALLED_APPS = [
 
     'Home.apps.HomeConfig',
     'Product.apps.ProductConfig',
+    'order.apps.OrderConfig',
+    'user.apps.UserConfig',
+    'ckeditor',
+    'mptt',
+
 ]
 
 MIDDLEWARE = [
@@ -132,6 +137,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
+
 MEDIA_URL = '/images/'
 
 MEDIA_ROOT = (os.path.join(BASE_DIR, 'static/uploads'))
@@ -140,3 +146,10 @@ MEDIA_ROOT = (os.path.join(BASE_DIR, 'static/uploads'))
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+    },
+}

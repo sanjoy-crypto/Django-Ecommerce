@@ -36,6 +36,7 @@
 {
     cursor: pointer;
     cursor: hand;
+   
 }
 
 .slick-slider .slick-track,
@@ -46,6 +47,7 @@
         -ms-transform: translate3d(0, 0, 0);
          -o-transform: translate3d(0, 0, 0);
             transform: translate3d(0, 0, 0);
+        
 }
 
 .slick-track
@@ -57,6 +59,8 @@
     display: block;
     margin-left: auto;
     margin-right: auto;
+    
+    
 }
 .slick-track:before,
 .slick-track:after
@@ -89,6 +93,7 @@
 .slick-slide img
 {
     display: block;
+    
 }
 .slick-slide.slick-loading img
 {
@@ -97,6 +102,7 @@
 .slick-slide.dragging img
 {
     pointer-events: none;
+    
 }
 .slick-initialized .slick-slide
 {

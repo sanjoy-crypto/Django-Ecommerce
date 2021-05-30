@@ -1,0 +1,114 @@
+{% extends 'Home/blank.html' %}
+{% load static %}
+{% block title %} Contact Us {% endblock %}
+
+{% block content %}
+
+<!-- BREADCRUMB -->
+<div id="breadcrumb">
+    <div class="container">
+        <ul class="breadcrumb">
+            <li><a href="/">Home</a></li>
+            <li class="active">Contact Us</li>
+        </ul>
+    </div>
+</div>
+<!-- /BREADCRUMB -->
+
+
+
+<!-- section -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+
+            <!-- Begin Contact Main Page Area -->
+            <div class="contact-main-page mt-60 mb-40 mb-md-40 mb-sm-40 mb-xs-40">
+                <div class="container mb-60">
+                    <div id="google-map"></div>
+                </div>
+                <div class="container contactus">
+                    <div class="row">
+                        <div class="col-lg-5 offset-lg-1 col-md-12 order-1 order-lg-2">
+                            <div class="contact-page-side-content">
+                                <h3 class="contact-page-title">Contact Us</h3>
+                                <p class="contact-page-message mb-25">{{setting.aboutus|safe}}</p>
+                                <div class="single-contact-block">
+                                    <h4><i class="fa fa-fax"></i> Address</h4>
+                                    <p>{{setting.address}}</p>
+                                </div>
+                                <div class="single-contact-block">
+                                    <h4><i class="fa fa-phone"></i> Phone</h4>
+                                    <p>Mobile: {{setting.phone}}</p>
+                                    <p>Hotline: {{setting.fax}}</p>
+                                </div>
+                                <div class="single-contact-block last-child">
+                                    <h4><i class="fa fa-envelope-o"></i> Email</h4>
+                                    <p>{{setting.email}}</p>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-12 order-2 order-lg-1">
+                            <div class="contact-form-content pt-sm-55 pt-xs-55">
+                                <h3 class="contact-page-title">Tell Us Your Message</h3>
+                                {% if messages %}
+                                {% for message in messages %}
+                                <div class="alert alert-{{message.tags}}" role="alert">
+                                    {{ message }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                <div class="contact-form">
+                                    <form id="contact-form" method="post">
+                                        {% csrf_token %}
+                                        <!-- {{form.as_p}} -->
+                                        {% for f in form %}
+                                        <h5 style="margin-top: 20px;">{{f.label}}</h5>
+                                        {{f}}
+                                        {% endfor %}
+                                        <button class="btnForm" type="submit">Send Form</button>
+                                    </form>
+                                </div>
+                                <p class="form-messege"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Contact Main Page Area End Here -->
+        </div>
+    </div>
+    <!-- /row -->
+</div>
+<!-- /container -->
+</div>
+<!-- /section -->
+
+{% endblock %}
+
+
+
+<!-- <div class="form-group">
+    <label>Your Name <span class="required">*</span></label>
+    <input type="text" name="name" id="name" required>
+</div>
+<div class="form-group">
+    <label>Your Email <span class="required">*</span></label>
+    <input type="email" name="email" id="email" required>
+</div>
+<div class="form-group">
+    <label>Subject</label>
+    <input type="text" name="subject" id="subject">
+</div>
+<div class="form-group mb-30">
+    <label>Your Message</label>
+    <textarea name="message" id="message"></textarea>
+</div>
+<div class="form-group">
+    <button type="submit" value="submit" id="submit" class="li-btn-3"
+        name="submit">send</button>
+</div> -->

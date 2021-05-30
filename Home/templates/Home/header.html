@@ -5,7 +5,14 @@
     <div id="top-header">
         <div class="container">
             <div class="pull-left">
-                <span>Welcome to E-shop!</span>
+                <span>Welcome to SanjuFashion!</span>
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{message.tags}}" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
             </div>
             <div class="pull-right">
                 <ul class="header-top-links">
@@ -42,20 +49,33 @@
             <div class="pull-left">
                 <!-- Logo -->
                 <div class="header-logo">
-                    <a class="logo" href="#">
-                        <img src="{% static '' %}img/logo.png" alt="">
+                    <a class="logo" href="/">
+                        <img src="{{setting.icon.url}}" style="width: 140px;" alt="">
                     </a>
                 </div>
                 <!-- /Logo -->
 
+
                 <!-- Search -->
                 <div class="header-search">
-                    <form>
-                        <input class="input search-input" type="text" placeholder="Enter your keyword">
-                        <select class="input search-categories">
+                    <form action="/search/" method="POST">
+                        {% csrf_token %}
+
+                        <input id="query" name="query" class="input search-input" type="text"
+                            placeholder="Enter your keyword">
+                        <select name="catId" class="input search-categories">
                             <option value="0">All Categories</option>
-                            <option value="1">Category 01</option>
-                            <option value="1">Category 02</option>
+                            {% load mptt_tags %}
+                            {% recursetree category %}
+                            {% if node.is_leaf_node %}
+                            <option value="{{node.id}}">{{node.title}}</option>
+                            {% endif %}
+                            {% if not node.is_leaf_node %}
+                            <optgroup label="{{node.title}}">{{children}}</optgroup>
+                            {% endif %}
+                            {% endrecursetree %}
+
+
                         </select>
                         <button class="search-btn"><i class="fa fa-search"></i></button>
                     </form>
@@ -86,7 +106,9 @@
 
                     <!-- Cart -->
                     <li class="header-cart dropdown default-dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                        <a href="{% url 'shopcart' %}">
+                            <!-- class="dropdown-toggle" data-toggle="dropdown"
+                            aria-expanded="true" -->
                             <div class="header-btns-icon">
                                 <i class="fa fa-shopping-cart"></i>
                                 <span class="qty">3</span>
@@ -95,7 +117,7 @@
                             <br>
                             <span>35.20$</span>
                         </a>
-                        <div class="custom-menu">
+                        <!-- <div class="custom-menu">
                             <div id="shopping-cart">
                                 <div class="shopping-cart-list">
                                     <div class="product product-widget">
@@ -125,7 +147,7 @@
                                             class="fa fa-arrow-circle-right"></i></button>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                     </li>
                     <!-- /Cart -->
 
