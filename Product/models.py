@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
 from django.forms import ModelForm, TextInput, Textarea
+from django.db.models import Avg, Count
 
 # Create your models here.
 
@@ -48,6 +49,14 @@ class Product(models.Model):
         ('True', 'True'),
         ('False', 'False')
     )
+    VARIANTS = (
+        ('None', 'None'),
+        ('Size', 'Size'),
+        ('Color', 'Color'),
+        ('Model', 'Model'),
+        ('Size-Color', 'Size-Color'),
+
+    )
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     title = models.CharField(max_length=150)
     keyword = models.CharField(max_length=255)
@@ -56,6 +65,7 @@ class Product(models.Model):
     price = models.FloatField()
     amount = models.IntegerField()
     minamount = models.IntegerField()
+    variant = models.CharField(max_length=10, choices=VARIANTS, default='None')
     detail = RichTextField(blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS)
     slug = models.SlugField(null=False, unique=True)
@@ -65,7 +75,7 @@ class Product(models.Model):
     def __str__(self):
         return self.title
 
-    def image_tag(self):
+    def image_tags(self):
         if self.image.url is not None:
             return mark_safe('<img src="{}" height="50"/>'.format(self.image.url))
         else:
@@ -80,6 +90,22 @@ class Product(models.Model):
         except:
             url = ''
         return url
+
+    def avaregereview(self):
+        reviews = Comment.objects.filter(
+            product=self, status='True').aggregate(avarage=Avg('rate'))
+        avg = 0
+        if reviews["avarage"] is not None:
+            avg = float(reviews["avarage"])
+        return avg
+
+    def countreview(self):
+        reviews = Comment.objects.filter(
+            product=self, status='True').aggregate(count=Count('id'))
+        cnt = 0
+        if reviews["count"] is not None:
+            cnt = int(reviews["count"])
+        return cnt
 
 
 class Images(models.Model):
@@ -121,3 +147,55 @@ class CommentForm(ModelForm):
         #     'subject': TextInput(attrs={'class': 'input ', 'placeholder': 'Your Subject...'}),
         #     'message': Textarea(attrs={'class': 'input ', 'placeholder': 'Your Message', 'rows': '5'}),
         # }
+
+
+class Color(models.Model):
+    name = models.CharField(max_length=20)
+    code = models.CharField(max_length=10, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    def color_tag(self):
+        if self.code is not None:
+            return mark_safe('<p style="background-color:{}">Color </p>'.format(self.code))
+        else:
+            return ""
+
+
+class Size(models.Model):
+    name = models.CharField(max_length=20)
+    code = models.CharField(max_length=10, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Variants(models.Model):
+    title = models.CharField(max_length=100, blank=True, null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    color = models.ForeignKey(
+        Color, on_delete=models.CASCADE, blank=True, null=True)
+    size = models.ForeignKey(
+        Size, on_delete=models.CASCADE, blank=True, null=True)
+    image_id = models.IntegerField(blank=True, null=True, default=0)
+    quantity = models.IntegerField(default=1)
+    price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    def __str__(self):
+        return self.title
+
+    def image(self):
+        img = Images.objects.get(id=self.image_id)
+        if img.id is not None:
+            varimage = img.image.url
+        else:
+            varimage = ""
+        return varimage
+
+    def image_tag(self):
+        img = Images.objects.get(id=self.image_id)
+        if img.id is not None:
+            return mark_safe('<img src="{}" height="50"/>'.format(img.image.url))
+        else:
+            return ""

@@ -30,22 +30,23 @@
                 <div class="col-md-6">
                     <div id="product-main-view">
                         <div class="product-view">
-                            <img src="{{ product.imageURL }}" alt="">
+                            <img src="{{ product.image.url }}" alt="" style="height: 400px">
                         </div>
-                        {% for img in images %}
+                        {% for rs in images %}
                         <div class="product-view">
-                            <img src="{{img.image.url}}" alt="">
+                            <img src="{{ rs.image.url }}" alt="" style="height: 400px">
                         </div>
                         {% endfor %}
+
 
                     </div>
                     <div id="product-view">
                         <div class="product-view">
-                            <img src="{{ product.imageURL }}" alt="">
+                            <img src="{{ product.image.url }}" alt="">
                         </div>
-                        {% for img in images %}
+                        {% for rs in images %}
                         <div class="product-view">
-                            <img src="{{img.image.url}}" alt="">
+                            <img src="{{ rs.image.url }}" alt="aa">
                         </div>
                         {% endfor %}
 
@@ -58,49 +59,149 @@
                             <span class="sale">-20%</span>
                         </div>
                         <h2 class="product-name">{{ product.title }}</h2>
-                        <h3 class="product-price">Tk {{ product.price }} <del class="product-old-price">$45.00</del>
-                        </h3>
+                        <h3 class="product-price">{{ product.price}}<del class="product-old-price">$45.00</del></h3>
                         <div>
                             <div class="product-rating">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star-o empty"></i>
+                                <i class="fa fa-star{% if product.avaregereview < 1%}-o empty{% endif%}"></i>
+                                <i class="fa fa-star{% if product.avaregereview < 2%}-o empty{% endif%}"></i>
+                                <i class="fa fa-star{% if product.avaregereview < 3%}-o empty{% endif%}"></i>
+                                <i class="fa fa-star{% if product.avaregereview < 4%}-o empty{% endif%}"></i>
+                                <i class="fa fa-star{% if product.avaregereview < 5%}-o empty{% endif%}"></i>
+                                {{ product.avaregereview |stringformat:".2f"}}
                             </div>
-                            <a href="#">3 Review(s) / Add Review</a>
-                        </div>
-                        <p><strong>Availability:</strong> In Stock</p>
-                        <p><strong>Brand:</strong> E-SHOP</p>
-                        <p>{{ product.description|safe }}</p>
-                        <div class="product-options">
-                            <ul class="size-option">
-                                <li><span class="text-uppercase">Size:</span></li>
-                                <li class="active"><a href="#">S</a></li>
-                                <li><a href="#">XL</a></li>
-                                <li><a href="#">SL</a></li>
-                            </ul>
-                            <ul class="color-option">
-                                <li><span class="text-uppercase">Color:</span></li>
-                                <li class="active"><a href="#" style="background-color:#475984;"></a></li>
-                                <li><a href="#" style="background-color:#8A2454;"></a></li>
-                                <li><a href="#" style="background-color:#BF6989;"></a></li>
-                                <li><a href="#" style="background-color:#9A54D8;"></a></li>
-                            </ul>
+
+
+
+                            <a href="#tab1"> {{ product.countreview}} Review(s) / Add Review</a>
                         </div>
 
+                        <p><strong>Brand:</strong> E-SHOP</p>
+                        <p>{{ product.description|safe }}</p>
+
+                        <script>
+                            $(document).on('change', '#post-form', function (e) {
+                                e.preventDefault();
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{% url "ajaxcolor" %}',
+                                    data: {
+                                        productid: $('#productid').val(),
+                                        size: $('#size').val(),
+                                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                                        action: 'post'
+                                    },
+                                    data_type: 'html',
+                                    success: function (data) {
+                                        console.log("success");
+                                        $('#appendHere').html(data.rendered_table);
+                                    },
+                                    error: function (data) {
+                                        alert("Got an error dude " + data);
+                                    }
+                                });
+                            });
+                        </script>
+
                         <div class="product-btns">
-                            <form action="/order/addtoshopcart/{{ product.id }}" method="POST">
+                            <form action="/order/addtoshopcart/{{ product.id }}" method="post" id="post-form">
                                 {% csrf_token %}
-                                <div class="qty-input">
-                                    <span class="text-uppercase">QTY: </span>
-                                    <input class="input" name="quantity" type="number" value="1" min="1"
-                                        max="{{ product.amount }}">
+                                <input type="hidden" name="productid" id="productid" value="{{ product.id }}">
+                                <div class="row">
+                                    {% if product.variant == 'None' %}
+                                    <div class="qty-input">
+                                        <span class="text-uppercase">QTY: </span>
+                                        <input class="input" name="quantity" type="number" value="1" min="1"
+                                            max="{{ product.amount }}">
+                                        <button type="submit" class="primary-btn add-to-cart"><i
+                                                class="fa fa-shopping-cart"></i> Add to Cart</button>
+                                    </div>
+
+                                    {% elif product.variant == 'Size-Color' %}
+
+                                    <div class="product-options">
+                                        <div class="size-option">
+                                            <span class="text-uppercase">Size :</span>
+                                            <select name="size" id="size">
+                                                {% for rs in size %}
+                                                <option value="{{ rs.size_id }}">{{ rs.size.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+
+                                        <ul class="color-option">
+                                            <li><span class="text-uppercase">Color:</span></li>
+                                            {% for rs in color %}
+                                            <input type="radio" name="color" value="{{ rs.id }}">
+                                            <li>
+                                                <a href="#"
+                                                    style="background-color:{{ rs.color.code }}; color: #ffffff; text-shadow: 2px 2px #000000; width: 70px">
+                                                    {{ rs.color }} ${{ rs.price }}
+                                                </a>
+                                                <img src="{{ rs.image }}" style="height: 70px">
+
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+
+                                        <p><strong>Availability:</strong> In Stock</p>
+                                        <div class="qty-input">
+                                            <span class="text-uppercase">QTY: </span>
+                                            <input class="input" name="quantity" type="number" value="1" min="1"
+                                                max="{{ product.amount }}">
+                                            <button type="submit" class="primary-btn add-to-cart"><i
+                                                    class="fa fa-shopping-cart"></i> Add to Cart</button>
+                                        </div>
+                                    </div>
+
+                                    {% elif product.variant == 'Size' %}
+
+                                    <div class="product-options">
+                                        <ul class="size-option">
+                                            <li><span class="text-uppercase">Size:</span></li>
+                                            <li class="active"><a href="#">S</a></li>
+                                            <li><a href="#">XL</a></li>
+                                            <li><a href="#">SL</a></li>
+                                        </ul>
+                                    </div>
+                                    <p><strong>Availability:</strong> In Stock</p>
+                                    <div class="qty-input">
+                                        <span class="text-uppercase">QTY: </span>
+                                        <input class="input" name="quantity" type="number" value="1" min="1"
+                                            max="{{ product.amount }}">
+                                        <button type="submit" class="primary-btn add-to-cart"><i
+                                                class="fa fa-shopping-cart"></i> Add to Cart</button>
+                                    </div>
+                                    {% elif product.variant == 'Color' %}
+                                    <div class="product-options">
+                                        <ul class="color-option">
+                                            <li><span class="text-uppercase">Color:</span></li>
+                                            <li class="active"><a href="#" style="background-color:#475984;"></a></li>
+                                            <li><a href="#" style="background-color:#8A2454;"></a></li>
+                                            <li><a href="#" style="background-color:#BF6989;"></a></li>
+                                            <li><a href="#" style="background-color:#9A54D8;"></a></li>
+                                        </ul>
+                                    </div>
+                                    <br><br><br>
+                                    <p><strong>Availability:</strong> In Stock</p>
+                                    <div class="qty-input">
+                                        <span class="text-uppercase">QTY: </span>
+                                        <input class="input" name="quantity" type="number" value="1" min="1"
+                                            max="{{ product.amount }}">
+                                        <button type="submit" class="primary-btn add-to-cart"><i
+                                                class="fa fa-shopping-cart"></i> Add to Cart</button>
+                                    </div>
+                                    {% endif %}
                                 </div>
-                                <button type="submit" class="primary-btn add-to-cart"><i
-                                        class="fa fa-shopping-cart"></i> Add to
-                                    Cart</button>
+                                <br>
+
+
+
+
+
                             </form>
+
+
 
                             <div class="pull-right">
                                 <button class="main-btn icon-btn"><i class="fa fa-heart"></i></button>
@@ -114,45 +215,49 @@
                     <div class="product-tab">
                         <ul class="tab-nav">
                             <li class="active"><a data-toggle="tab" href="#tab1">Details</a></li>
-                            <li><a data-toggle="tab" href="#tab2">Reviews (3)</a></li>
+                            <li><a data-toggle="tab" href="#tab2">Reviews ({{ product.countreview}} )</a></li>
                         </ul>
                         <div class="tab-content">
                             <div id="tab1" class="tab-pane fade in active">
-                                <p>{{product.detail|safe}}</p>
+                                <p>
+                                    {{ product.detail |safe }}
+                                </p>
                             </div>
                             <div id="tab2" class="tab-pane fade in">
 
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="product-reviews">
-                                            {% for comment in comments %}
+                                            {% for rs in comments %}
                                             <div class="single-review">
                                                 <div class="review-heading">
-                                                    <div><a href="#"><i class="fa fa-user-o"></i> {{ comment.user }}</a>
+                                                    <div><a href="#"><i class="fa fa-user-o"></i>
+                                                            {{ rs.user.first_name }}</a> </div>
+                                                    <div><b>{{ rs.subject }}</b> </div>
+                                                    <div><a href="#"><i class="fa fa-clock-o"></i> {{ rs.create_at}}</a>
                                                     </div>
-                                                    <div><a href="#"><i class="fa fa-clock-o"></i>
-                                                            {{ comment.create_at }}</a></div>
+
                                                     <div class="review-rating pull-right">
-
                                                         <i
-                                                            class="fa fa-star{% if comment.rate < 1 %}-o empty{% endif %}"></i>
+                                                            class="fa fa-star{% if rs.rate < 1 %}-o empty{% endif %}"></i>
                                                         <i
-                                                            class="fa fa-star{% if comment.rate < 2 %}-o empty{% endif %}"></i>
+                                                            class="fa fa-star{% if rs.rate < 2 %}-o empty{% endif %}"></i>
                                                         <i
-                                                            class="fa fa-star{% if comment.rate < 3 %}-o empty{% endif %}"></i>
+                                                            class="fa fa-star{% if rs.rate < 3 %}-o empty{% endif %}"></i>
                                                         <i
-                                                            class="fa fa-star{% if comment.rate < 4 %}-o empty{% endif %}"></i>
+                                                            class="fa fa-star{% if rs.rate < 4 %}-o empty{% endif %}"></i>
                                                         <i
-                                                            class="fa fa-star{% if comment.rate < 5 %}-o empty{% endif %}"></i>
+                                                            class="fa fa-star{% if rs.rate < 5 %}-o empty{% endif %}"></i>
 
                                                     </div>
+
                                                 </div>
                                                 <div class="review-body">
-                                                    <p>{{ comment.comment }}</p>
+                                                    <p>{{ rs.comment }}</p>
                                                 </div>
                                             </div>
-
                                             {% endfor %}
+
 
 
                                             <ul class="reviews-pages">
@@ -174,14 +279,14 @@
                                         {% endfor %}
                                         {% endif %}
 
-
                                         <form class="review-form" action="/product/addcomment/{{ product.id }}"
                                             method="post">
                                             {% csrf_token %}
                                             <div class="form-group">
                                                 <input name="subject" class="input" type="text"
-                                                    placeholder="Your Subject" />
+                                                    placeholder="Your subject" />
                                             </div>
+
                                             <div class="form-group">
                                                 <textarea name="comment" class="input"
                                                     placeholder="Your review"></textarea>
@@ -210,7 +315,6 @@
                                             {% endif %}
                                         </form>
 
-
                                     </div>
                                 </div>
 
@@ -227,6 +331,8 @@
         <!-- /row -->
     </div>
     <!-- /container -->
+</div>
+<!-- /container -->
 </div>
 <!-- /section -->
 

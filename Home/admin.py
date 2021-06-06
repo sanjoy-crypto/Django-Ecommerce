@@ -15,7 +15,13 @@ class ContactMessageAdmin(admin.ModelAdmin):
     list_filter = ['status']
 
 
+class FAQAdmin(admin.ModelAdmin):
+    list_display = ['question', 'answer', 'ordernumber', 'status']
+    list_filter = ['status']
+
+
 admin.site.register(Setting, SettingAdmin)
 admin.site.register(ContactMessage, ContactMessageAdmin)
 admin.site.register(SliderImage)
 admin.site.register(OfferImage)
+admin.site.register(FAQ, FAQAdmin)

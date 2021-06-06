@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import *
 from mptt.admin import DraggableMPTTAdmin
+import admin_thumbnails
 # Register your models here.
 
 
@@ -45,16 +46,31 @@ class CategoryAdmin2(DraggableMPTTAdmin):
     related_products_cumulative_count.short_description = 'Related products (in tree)'
 
 
+@admin_thumbnails.thumbnail('image')
 class ProductImageInline(admin.TabularInline):
     model = Images
-    extra = 5
+    readonly_fields = ('id',)
+    extra = 1
+
+
+class ProductVariantsInline(admin.TabularInline):
+    model = Variants
+    readonly_fields = ('image_tag',)
+    extra = 1
+    show_change_link = True
+
+
+@admin_thumbnails.thumbnail('image')
+class ImagesAdmin(admin.ModelAdmin):
+    list_display = ['image', 'title', 'image_thumbnail']
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['title', 'category', 'status', 'image_tag']
+    list_display = ['title', 'category', 'status', 'image_tags']
     list_filter = ['category']
     inlines = [ProductImageInline]
-    readonly_fields = ('image_tag',)
+    readonly_fields = ('image_tags',)
+    inlines = [ProductImageInline, ProductVariantsInline]
     prepopulated_fields = {'slug': ('title',)}
 
 
@@ -64,7 +80,24 @@ class CommentAdmin(admin.ModelAdmin):
     readonly_fields = ('subject', 'comment', 'ip', 'user', 'product', 'rate')
 
 
+class ColorAdmin(admin.ModelAdmin):
+    list_display = ['name', 'code', 'color_tag']
+
+
+class SizeAdmin(admin.ModelAdmin):
+    list_display = ['name', 'code']
+
+
+class VariantsAdmin(admin.ModelAdmin):
+    list_display = ['title', 'product', 'color',
+                    'size', 'price', 'quantity', 'image_tag']
+
+
 admin.site.register(Category, CategoryAdmin2)
 admin.site.register(Product, ProductAdmin)
-admin.site.register(Images)
+admin.site.register(Images, ImagesAdmin)
 admin.site.register(Comment, CommentAdmin)
+admin.site.register(Color, ColorAdmin)
+admin.site.register(Size, SizeAdmin)
+
+admin.site.register(Variants, VariantsAdmin)

@@ -1,0 +1,55 @@
+{% extends 'Home/blank.html' %}
+{% load static %}
+{% block title %} Frequently Asked Questions {% endblock %}
+
+{% block content %}
+{% block header %}
+<script>
+    $(function () {
+        $("#accordion").accordion();
+    });
+</script>
+{% endblock %}
+
+
+<!-- BREADCRUMB -->
+<div id="breadcrumb">
+    <div class="container">
+        <ul class="breadcrumb">
+            <li><a href="/">Home</a></li>
+            <li class="active">Frequently Asked Questions</li>
+        </ul>
+    </div>
+</div>
+<!-- /BREADCRUMB -->
+
+<!-- section -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <div id="accordion">
+                {% for rs in faq %}
+
+                <h3>{{ rs.question }}</h3>
+                <div>
+                    <p>
+                        {{ rs.answer | safe }}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+
+
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /section -->
+
+
+
+{% endblock %}
